@@ -1,0 +1,21 @@
+﻿__pycache__/
+*.py[cod]
+*.class
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Output files
+*.xlsx
+*.csv
