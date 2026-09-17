@@ -618,6 +618,15 @@ elif df_all_results is not None and not df_all_results.empty:
                 )
                 fig.update_xaxes(gridcolor='#334155')
 
+                # 주말(토/일) 및 시장 휴장일(공휴일) 공백 제거 (봉이 끊기지 않고 연속 연결)
+                if len(df_stock_ind) > 1:
+                    all_b_days_29 = pd.date_range(start=df_stock_ind.index[0], end=df_stock_ind.index[-1], freq='B')
+                    holidays_29 = [d.strftime("%Y-%m-%d") for d in all_b_days_29 if d not in df_stock_ind.index]
+                    rbreaks_29 = [dict(bounds=["sat", "mon"])]
+                    if holidays_29:
+                        rbreaks_29.append(dict(values=holidays_29))
+                    fig.update_xaxes(rangebreaks=rbreaks_29)
+
                 # 왼쪽 Y축 4개 레이블 설정 (가격, 거래량, MACD, RSI)
                 fig.update_yaxes(title_text="가격 (원)", title_font=dict(size=11, color='#94a3b8'), gridcolor='#334155', row=1, col=1)
                 fig.update_yaxes(title_text="거래량", title_font=dict(size=11, color='#94a3b8'), gridcolor='#334155', row=2, col=1)
