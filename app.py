@@ -172,6 +172,8 @@ if "last_screened_market" not in st.session_state:
     st.session_state.last_screened_market = None
 if "last_screened_scope" not in st.session_state:
     st.session_state.last_screened_scope = None
+if "has_run_screening" not in st.session_state:
+    st.session_state.has_run_screening = False
 
 
 # ---------------- 4. 왼쪽 사이드바 (필터 및 스크리닝 실행) ----------------
@@ -310,7 +312,10 @@ if run_btn:
             )
             elapsed = time.time() - start_time
             progress_bar.progress(1.0)
-            status_text.success(f"✅ 스크리닝 완료! ({len(df_screened)}개 종목 분석, 소요 시간: {elapsed:.1f}초)")
+            if df_screened is not None and not df_screened.empty:
+                status_text.success(f"✅ 스크리닝 완료! ({len(df_screened)}개 종목 분석, 소요 시간: {elapsed:.1f}초)")
+            else:
+                status_text.warning(f"⚠️ 조건에 부합하는 종목이 없습니다. (소요 시간: {elapsed:.1f}초)")
             time.sleep(1.0)
             progress_bar.empty()
             status_text.empty()
@@ -318,14 +323,29 @@ if run_btn:
             st.session_state.screening_results = df_screened
             st.session_state.last_screened_market = market_code
             st.session_state.last_screened_scope = scope_selected_label
+            st.session_state.has_run_screening = True
     except Exception as e:
         st.error(f"스크리닝 도중 오류가 발생했습니다: {e}")
 
 
 # ---------------- 7. 결과 대시보드 렌더링 ----------------
 df_all_results = st.session_state.screening_results
+has_run = st.session_state.get("has_run_screening", False)
 
-if df_all_results is not None and not df_all_results.empty:
+if has_run and (df_all_results is None or df_all_results.empty):
+    st.markdown("""
+    <div style="text-align: center; padding: 40px 20px; background-color: #1e293b; border: 1px solid #eab308; border-radius: 12px; margin-top: 20px;">
+        <div style="font-size: 2.2rem; margin-bottom: 12px;">⚠️</div>
+        <div style="font-size: 1.15rem; font-weight: 700; color: #facc15; margin-bottom: 8px;">
+            스크리닝 대상 종목을 찾지 못했습니다
+        </div>
+        <div style="font-size: 0.90rem; color: #cbd5e1; max-width: 540px; margin: 0 auto; line-height: 1.6;">
+            선택한 <b>시장</b> 또는 <b>최소 시가총액</b> 기준이 너무 높을 수 있습니다.<br>
+            왼쪽 사이드바에서 <b>'최소 시가총액'</b>을 <b>'제한 없음 (전체)'</b> 또는 더 낮은 금액으로 조정한 후 다시 <b>[스크리닝 실행]</b>을 눌러보세요.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+elif df_all_results is not None and not df_all_results.empty:
     # 데이터프레임 컬럼 스키마 무결성 보장 (구버전 캐시 호환)
     if "시가총액" not in df_all_results.columns:
         if "시가총액_원" in df_all_results.columns:

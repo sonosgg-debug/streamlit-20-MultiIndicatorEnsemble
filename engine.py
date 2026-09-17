@@ -72,9 +72,53 @@ def is_valid_screening_stock(code: str, name: str) -> bool:
     return True
 
 
+_CACHED_FALLBACK_MARCAP = None
+
+
+def get_fallback_marcap_map() -> dict:
+    """
+    FinanceDataReader의 KRX 당일자 캐시 파일이 장중/장마감 전이라 시가총액(Marcap)이 결측치(NaN)인 경우,
+    최근 10영업일을 역순으로 탐색하여 시가총액이 유효하게 존재하는 가장 최근 거래일의 데이터를 로드하고
+    {종목코드: 시가총액} 매핑 딕셔너리를 반환합니다.
+    """
+    global _CACHED_FALLBACK_MARCAP
+    if _CACHED_FALLBACK_MARCAP is not None and len(_CACHED_FALLBACK_MARCAP) > 0:
+        return _CACHED_FALLBACK_MARCAP
+
+    base_url = "https://raw.githubusercontent.com/FinanceData/fdr_krx_data_cache/refs/heads/master/data/listing/krx/"
+    today = datetime.now()
+
+    # 오늘부터 최근 10일간 역순 탐색
+    for days_back in range(0, 11):
+        target_date = (today - timedelta(days=days_back)).strftime("%Y-%m-%d")
+        url = f"{base_url}{target_date}.csv"
+        try:
+            df = pd.read_csv(url, dtype={"Code": str, "ISU_SRT_CD": str}, low_memory=False)
+            code_col = "Code" if "Code" in df.columns else "ISU_SRT_CD"
+            marcap_col = None
+            for col in ["Marcap", "MKTCAP", "시가총액"]:
+                if col in df.columns:
+                    marcap_col = col
+                    break
+
+            if marcap_col and code_col in df.columns:
+                valid_series = pd.to_numeric(df[marcap_col], errors="coerce")
+                if valid_series.notna().sum() > 500:
+                    df["clean_code"] = df[code_col].astype(str).str.zfill(6)
+                    df["clean_marcap"] = valid_series.fillna(0)
+                    marcap_dict = dict(zip(df["clean_code"], df["clean_marcap"]))
+                    _CACHED_FALLBACK_MARCAP = marcap_dict
+                    return _CACHED_FALLBACK_MARCAP
+        except Exception:
+            continue
+
+    return {}
+
+
 def get_market_universe(market: str = "KOSPI", scope: str = "top500", min_marcap_eok: int = 0) -> pd.DataFrame:
     """
     지정된 시장(KOSPI 또는 KOSDAQ)의 종목 목록을 로드하고 필터링 및 범위 지정을 수행합니다.
+    시가총액 결측치 발생 시 최근 유효 거래일 데이터를 자동 보정합니다.
     """
     market_code = "KOSPI" if "KOSPI" in market.upper() or "코스피" in market else "KOSDAQ"
     
@@ -84,22 +128,38 @@ def get_market_universe(market: str = "KOSPI", scope: str = "top500", min_marcap
         print(f"StockListing({market_code}) 로드 실패: {e}")
         # 폴백: KRX 전체에서 시장 추출
         df_all = fdr.StockListing("KRX")
-        df_listing = df_all[df_all["Market"].str.upper() == market_code].copy()
+        if "Market" in df_all.columns:
+            df_listing = df_all[df_all["Market"].str.upper() == market_code].copy()
+        elif "MarketId" in df_all.columns:
+            target_id = "STK" if market_code == "KOSPI" else "KSQ"
+            df_listing = df_all[df_all["MarketId"] == target_id].copy()
+        else:
+            df_listing = df_all.copy()
 
     # 필수 컬럼 검증 및 통일
-    # fdr의 컬럼: Code, Name, Market, Marcap (또는 없을 경우 시가총액 추산)
     if "Code" not in df_listing.columns and "Symbol" in df_listing.columns:
         df_listing["Code"] = df_listing["Symbol"]
+    if "Code" not in df_listing.columns and "ISU_SRT_CD" in df_listing.columns:
+        df_listing["Code"] = df_listing["ISU_SRT_CD"]
 
     df_listing["Code"] = df_listing["Code"].astype(str).str.zfill(6)
+
+    # 마켓 필터 재확인 (fdr 버전에 따라 전체가 들어올 수 있으므로)
+    if "MarketId" in df_listing.columns:
+        target_id = "STK" if market_code == "KOSPI" else "KSQ"
+        if (df_listing["MarketId"] == target_id).any():
+            df_listing = df_listing[df_listing["MarketId"] == target_id].copy()
+    elif "Market" in df_listing.columns:
+        if (df_listing["Market"].str.upper() == market_code).any():
+            df_listing = df_listing[df_listing["Market"].str.upper() == market_code].copy()
 
     # 노이즈 종목 필터링
     valid_mask = df_listing.apply(lambda row: is_valid_screening_stock(row["Code"], row["Name"]), axis=1)
     df_filtered = df_listing[valid_mask].copy()
 
-    # 시가총액 컬럼 확보 및 정렬
+    # 시가총액 컬럼 확보
     marcap_col = None
-    for col in ["Marcap", "시가총액", "MarketCap"]:
+    for col in ["Marcap", "MKTCAP", "시가총액", "MarketCap"]:
         if col in df_filtered.columns:
             marcap_col = col
             break
@@ -109,11 +169,25 @@ def get_market_universe(market: str = "KOSPI", scope: str = "top500", min_marcap
     else:
         df_filtered["Marcap_Num"] = 0
 
+    # 시가총액 결측치 또는 전체 0인 경우 최근 유효 거래일 기준 폴백 매핑 적용
+    valid_marcap_count = (df_filtered["Marcap_Num"] > 0).sum()
+    if valid_marcap_count < max(10, len(df_filtered) * 0.5):
+        fallback_map = get_fallback_marcap_map()
+        if fallback_map:
+            fallback_series = df_filtered["Code"].map(fallback_map).fillna(0)
+            df_filtered["Marcap_Num"] = np.where(
+                df_filtered["Marcap_Num"] > 0,
+                df_filtered["Marcap_Num"],
+                fallback_series
+            )
+
     # 시가총액 기준 내림차순 정렬
     df_sorted = df_filtered.sort_values(by="Marcap_Num", ascending=False).reset_index(drop=True)
 
     # 최소 시가총액 필터 (단위: 억원)
-    if min_marcap_eok > 0:
+    # 만약 폴백 후에도 모든 시총이 0원인 극단적 상황인 경우, 전 종목이 날아가지 않도록 필터를 안전 우회
+    has_valid_marcap = (df_sorted["Marcap_Num"] > 0).any()
+    if min_marcap_eok > 0 and has_valid_marcap:
         min_won = min_marcap_eok * 100_000_000
         df_sorted = df_sorted[df_sorted["Marcap_Num"] >= min_won].reset_index(drop=True)
 
