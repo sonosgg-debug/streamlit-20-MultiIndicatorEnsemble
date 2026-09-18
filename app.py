@@ -339,16 +339,15 @@ with st.sidebar:
 # ---------------- 5. 오른쪽 대시보드 - 타이틀 영역 ----------------
 # 00 Bookmarks 스타일의 철학적 인용구 및 메인 타이틀
 st.markdown(
-    "<h1 style='text-align: center; font-size: 2.1rem; font-weight: 800; line-height: 1.35; margin: 0 0 8px 0; color: #8AB4F8 !important;'>"
+    "<h1 style='text-align: center; font-size: 1.9rem; font-weight: 800; line-height: 1.35; margin: 0 0 8px 0; color: #8AB4F8 !important;'>"
     "다중 지표 앙상블(Multi-Indicator Ensemble) 종목 발굴 엔진"
     "</h1>",
     unsafe_allow_html=True
 )
 
 st.markdown(
-    "<div style='text-align: center; font-size: 0.95rem; color: #94a3b8; margin-bottom: 20px; line-height: 1.5;'>"
-    "“Stock investing is an art, not a science. But truly it is both.” — <i>Peter Lynch</i><br>"
-    "<span style='color: #cbd5e1;'>6대 핵심 기술적 지표의 가중치 앙상블 결합을 통해 시장 노이즈를 제거하고, 정량적 매수(BUY) 종목을 정밀 발굴합니다.</span>"
+    "<div style='text-align: center; font-size: 0.95rem; color: #cbd5e1; margin-bottom: 20px; line-height: 1.5;'>"
+    "6대 핵심 기술적 지표의 가중치 앙상블 결합을 통해 시장 노이즈를 제거하고, 정량적 매수(BUY) 종목을 정밀 발굴합니다."
     "</div>",
     unsafe_allow_html=True
 )
