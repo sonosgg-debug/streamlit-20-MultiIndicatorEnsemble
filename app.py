@@ -19,8 +19,7 @@ from excel_exporter import create_excel_bytes, create_csv_bytes, prepare_export_
 
 # ---------------- 1. 페이지 환경 설정 ----------------
 st.set_page_config(
-    page_title="Quant-Tech Screener - 다중 지표 앙상블 스크리너",
-    page_icon="📈",
+    page_title="다중 지표 앙상블 스크리너",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -46,6 +45,93 @@ st.markdown("""
     section[data-testid="stSidebar"] {
         background-color: #1e293b !important;
         border-right: 1px solid #334155;
+    }
+
+    /* 사이드바 너비 편의 설정 */
+    section[data-testid="stSidebar"][aria-expanded="true"] {
+        min-width: 320px !important;
+    }
+    section[data-testid="stSidebar"][aria-expanded="false"] {
+        min-width: 0px !important;
+        width: 0px !important;
+    }
+
+    /* =========================================================
+       사이드바 접기(<<) 및 펼치기(>>) 버튼 항상 표시 및 시인성/대비 강화
+       ========================================================= */
+    /* 1. 사이드바가 열려 있을 때 접기 버튼 (<<) 상시 표시 */
+    [data-testid="stSidebarCollapseButton"] {
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: inline-flex !important;
+    }
+    
+    [data-testid="stSidebarCollapseButton"] button {
+        visibility: visible !important;
+        opacity: 1 !important;
+        background-color: #1e293b !important;       /* 진한 네이비 배경 */
+        border: 1.5px solid #38bdf8 !important;     /* 선명한 스카이블루 테두리로 상자 명확화 */
+        border-radius: 8px !important;
+        width: 38px !important;
+        height: 38px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 6px rgba(56, 189, 248, 0.2) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    /* 상자 내부의 << 아이콘(Material Icon span/svg/문자)을 순백색으로 강제하여 상자와 극명한 대비 구현 */
+    [data-testid="stSidebarCollapseButton"] button *,
+    [data-testid="stSidebarCollapseButton"] span,
+    [data-testid="stSidebarCollapseButton"] [data-testid="stIconMaterial"],
+    [data-testid="stSidebarCollapseButton"] svg {
+        color: #ffffff !important;
+        fill: #ffffff !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        font-size: 1.35rem !important;
+        font-weight: 700 !important;
+    }
+    
+    /* 호버(PC) 및 터치 시 반전 효과 */
+    [data-testid="stSidebarCollapseButton"] button:hover {
+        background-color: #38bdf8 !important;
+        border-color: #38bdf8 !important;
+    }
+    [data-testid="stSidebarCollapseButton"] button:hover * {
+        color: #0f172a !important;
+        fill: #0f172a !important;
+    }
+
+    /* 2. 사이드바 헤더 영역 패딩 및 정렬 보정 */
+    [data-testid="stSidebarHeader"] {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    /* 3. 사이드바가 닫혔을 때 다시 여는 버튼 (>>) 시인성 강화 */
+    [data-testid="stSidebarCollapsedControl"] {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"] button {
+        background-color: #1e293b !important;
+        border: 1.5px solid #38bdf8 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 6px rgba(56, 189, 248, 0.2) !important;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"] button *,
+    [data-testid="stSidebarCollapsedControl"] span,
+    [data-testid="stSidebarCollapsedControl"] [data-testid="stIconMaterial"],
+    [data-testid="stSidebarCollapsedControl"] svg {
+        color: #38bdf8 !important;
+        fill: #38bdf8 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        font-size: 1.35rem !important;
     }
 
     /* 헤더 및 타이틀 색상 (#8AB4F8) */
