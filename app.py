@@ -518,7 +518,7 @@ elif df_all_results is not None and not df_all_results.empty:
 
     with col_dl_excel:
         st.download_button(
-            label="📥 엑셀 (.xlsx) 다운로드",
+            label="📥 엑셀 파일 다운로드",
             data=excel_bytes,
             file_name=f"앙상블스크리닝_{st.session_state.last_screened_market}_{now_str}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
