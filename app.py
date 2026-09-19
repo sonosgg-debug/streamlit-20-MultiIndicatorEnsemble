@@ -229,21 +229,6 @@ st.markdown("""
         background-color: #1d4ed8 !important;
         box-shadow: 0 0 10px rgba(37, 99, 235, 0.4) !important;
     }
-
-    /* 다운로드 버튼 스타일 */
-    .stDownloadButton button {
-        height: 42px;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        border: 1px solid #334155 !important;
-        background-color: #1e293b !important;
-        color: #f8fafc !important;
-    }
-    .stDownloadButton button:hover {
-        background-color: #334155 !important;
-        border-color: #475569 !important;
-        color: #ffffff !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
