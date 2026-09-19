@@ -526,7 +526,7 @@ elif df_all_results is not None and not df_all_results.empty:
         )
     with col_dl_csv:
         st.download_button(
-            label="📄 CSV (.csv) 다운로드",
+            label="📥 CSV 파일 다운로드",
             data=csv_bytes,
             file_name=f"앙상블스크리닝_{st.session_state.last_screened_market}_{now_str}.csv",
             mime="text/csv",
