@@ -497,8 +497,8 @@ elif df_all_results is not None and not df_all_results.empty:
 
     st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
-    # 2) 테이블 상단 툴바 (검색창 및 엑셀/CSV 다운로드 버튼)
-    col_search, col_dl_excel, col_dl_csv = st.columns([2.5, 1, 1])
+    # 2) 테이블 상단 툴바 (검색창 및 CSV/엑셀 다운로드 버튼: 좌측 CSV, 우측 엑셀)
+    col_search, col_dl_csv, col_dl_excel = st.columns([2.5, 1, 1])
     with col_search:
         search_query = st.text_input("🔍 결과 내 종목 검색", placeholder="종목명 또는 종목코드 입력...", label_visibility="collapsed")
     
@@ -511,25 +511,25 @@ elif df_all_results is not None and not df_all_results.empty:
             df_display["종목코드"].str.contains(q)
         ]
 
-    # 엑셀 및 CSV 다운로드 버튼
+    # CSV 및 엑셀 다운로드 버튼 (좌측 CSV, 우측 엑셀 표준)
     excel_bytes = create_excel_bytes(df_display)
     csv_bytes = create_csv_bytes(df_display)
     now_str = pd.Timestamp.now().strftime("%Y%m%d_%H%M")
 
-    with col_dl_excel:
-        st.download_button(
-            label="📥 엑셀 파일 다운로드",
-            data=excel_bytes,
-            file_name=f"앙상블스크리닝_{st.session_state.last_screened_market}_{now_str}.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
-        )
     with col_dl_csv:
         st.download_button(
             label="📥 CSV 파일 다운로드",
             data=csv_bytes,
             file_name=f"앙상블스크리닝_{st.session_state.last_screened_market}_{now_str}.csv",
             mime="text/csv",
+            use_container_width=True
+        )
+    with col_dl_excel:
+        st.download_button(
+            label="📥 엑셀 파일 다운로드",
+            data=excel_bytes,
+            file_name=f"앙상블스크리닝_{st.session_state.last_screened_market}_{now_str}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             use_container_width=True
         )
 
