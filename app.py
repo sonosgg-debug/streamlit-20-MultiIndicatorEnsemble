@@ -37,7 +37,7 @@ st.markdown("""
     /* 메인 컨테이너 패딩 조절 */
     .main .block-container,
     [data-testid="stMainBlockContainer"] {
-        padding-top: 2.5rem !important;
+        padding-top: 2.0rem !important;
         padding-bottom: 3.5rem !important;
     }
 
@@ -137,6 +137,7 @@ st.markdown("""
     /* 헤더 및 타이틀 색상 (#8AB4F8) */
     h1, .app-main-title {
         color: #8AB4F8 !important;
+        font-size: 2.0rem !important;
         font-weight: 800 !important;
         letter-spacing: -0.5px;
     }
@@ -765,8 +766,11 @@ else:
 # ---------------- 8. 페이지 푸터 ----------------
 st.markdown("---")
 st.markdown(
-    "<div style='text-align: center; color: #64748b; font-size: 0.85rem; padding-bottom: 15px;'>"
+    "<div style='text-align: center; color: #64748b; font-size: 0.85rem; padding-bottom: 8px;'>"
     "Technical Analysis Ensemble Screener | 다중 지표 앙상블 모델 종목 발굴 시스템"
+    "</div>"
+    "<div style='text-align: center; color: #64748b; font-size: 0.8rem; margin-top: 4px; margin-bottom: 24px; line-height: 1.6;'>"
+    "⚠️ 본 서비스에서 제공하는 모든 정보는 투자 참고용이며, 투자의 최종 결정과 책임은 투자자 본인에게 있습니다."
     "</div>",
     unsafe_allow_html=True
 )
