@@ -212,20 +212,22 @@ st.markdown("""
         font-weight: 700;
     }
 
-    /* 버튼 스타일 */
-    .stButton>button[kind="primary"] {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-        border: 1px solid #3b82f6 !important;
+    /* Primary Button Styling (39 DividendStock 테마 통일) */
+    .stButton button[kind="primary"],
+    .stButton > button[kind="primary"],
+    section[data-testid="stSidebar"] button[kind="primary"] {
+        background-color: #2563eb !important;
         color: #ffffff !important;
-        font-weight: 700 !important;
-        height: 44px;
-        border-radius: 8px !important;
-        transition: all 0.2s ease-in-out;
+        border: none !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        transition: all 0.2s ease !important;
     }
-    .stButton>button[kind="primary"]:hover {
-        background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
-        border-color: #60a5fa !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    .stButton button[kind="primary"]:hover,
+    .stButton > button[kind="primary"]:hover,
+    section[data-testid="stSidebar"] button[kind="primary"]:hover {
+        background-color: #1d4ed8 !important;
+        box-shadow: 0 0 10px rgba(37, 99, 235, 0.4) !important;
     }
 
     /* 다운로드 버튼 스타일 */
@@ -327,7 +329,7 @@ with st.sidebar:
     st.markdown("---")
 
     # 5) 스크리닝 실행 버튼
-    run_btn = st.button("🚀 스크리닝 실행", type="primary", use_container_width=True)
+    run_btn = st.button("🔍 스크리닝 시작", type="primary", use_container_width=True)
 
     st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
     st.info(
