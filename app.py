@@ -293,7 +293,7 @@ with st.sidebar:
     marcap_label = st.selectbox(
         "💰 최소 시가총액",
         options=list(marcap_filter_options.keys()),
-        index=1,
+        index=2,
         help="극단적인 초소형/동전주를 배제하여 안정성을 높입니다."
     )
     min_marcap_val = marcap_filter_options[marcap_label]
