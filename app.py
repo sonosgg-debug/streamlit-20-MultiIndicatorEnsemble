@@ -500,13 +500,13 @@ elif df_all_results is not None and not df_all_results.empty:
     # CSV 및 엑셀 다운로드 버튼 (좌측 CSV, 우측 엑셀 표준)
     excel_bytes = create_excel_bytes(df_display)
     csv_bytes = create_csv_bytes(df_display)
-    now_str = pd.Timestamp.now().strftime("%Y%m%d_%H%M")
+    now_str = pd.Timestamp.now(tz="Asia/Seoul").strftime("%Y%m%d_%H%M")
 
     with col_dl_csv:
         st.download_button(
             label="📥 CSV 파일 다운로드",
             data=csv_bytes,
-            file_name=f"앙상블스크리닝_{st.session_state.last_screened_market}_{now_str}.csv",
+            file_name=f"MultiEnsemble_{st.session_state.last_screened_market}_{now_str}.csv",
             mime="text/csv",
             use_container_width=True
         )
@@ -514,7 +514,7 @@ elif df_all_results is not None and not df_all_results.empty:
         st.download_button(
             label="📥 엑셀 파일 다운로드",
             data=excel_bytes,
-            file_name=f"앙상블스크리닝_{st.session_state.last_screened_market}_{now_str}.xlsx",
+            file_name=f"MultiEnsemble_{st.session_state.last_screened_market}_{now_str}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             use_container_width=True
         )
