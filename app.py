@@ -311,6 +311,9 @@ with st.sidebar:
     )
     market_code = "KOSPI" if "코스피" in market_choice else "KOSDAQ"
 
+    st.markdown("---")
+    st.subheader("🎯 앙상블 조건 필터")
+
     # 2) 대상 범위 선택 (속도 및 정밀도 조절)
     scope_options = {
         "시총 상위 300 (쾌속 모드 ~15초)": "top300",
