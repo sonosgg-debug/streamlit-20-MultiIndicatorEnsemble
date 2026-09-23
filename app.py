@@ -681,10 +681,11 @@ elif df_all_results is not None and not df_all_results.empty:
                     fig.add_hline(y=30, line_dash="dot", line_color="#10b981", row=4, col=1)
 
                 fig.update_layout(
+                    template="plotly_dark",
                     height=650,
                     margin=dict(l=10, r=10, t=20, b=10),
-                    paper_bgcolor='#0f172a',
-                    plot_bgcolor='#1e293b',
+                    paper_bgcolor='#1E293B',
+                    plot_bgcolor='#0F172A',
                     font=dict(color='#cbd5e1'),
                     xaxis_rangeslider_visible=False,
                     showlegend=False
