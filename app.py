@@ -307,6 +307,7 @@ with st.sidebar:
         "🏛️ 시장 선택",
         options=["코스피 (KOSPI)", "코스닥 (KOSDAQ)"],
         index=0,
+        horizontal=True,
         help="스크리닝할 국내 주식 시장을 선택합니다."
     )
     market_code = "KOSPI" if "코스피" in market_choice else "KOSDAQ"
