@@ -39,6 +39,7 @@ STANDARD_CHART_THEME = {
 # ---------------- 1. 페이지 환경 설정 ----------------
 st.set_page_config(
     page_title="다중 지표 앙상블 스크리너",
+    page_icon="🏛️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
