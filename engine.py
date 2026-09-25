@@ -86,7 +86,7 @@ def get_fallback_marcap_map() -> dict:
         return _CACHED_FALLBACK_MARCAP
 
     base_url = "https://raw.githubusercontent.com/FinanceData/fdr_krx_data_cache/refs/heads/master/data/listing/krx/"
-    today = datetime.now()
+    today = datetime.now(KST)
 
     # 오늘부터 최근 10일간 역순 탐색
     for days_back in range(0, 11):
@@ -284,7 +284,7 @@ def run_screening_task(
         return pd.DataFrame()
 
     # 약 1.5년 전 날짜부터 수집 (200일선 계산 충족)
-    start_date = (datetime.now() - timedelta(days=450)).strftime("%Y-%m-%d")
+    start_date = (datetime.now(KST) - timedelta(days=450)).strftime("%Y-%m-%d")
 
     results = []
     completed_count = 0

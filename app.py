@@ -4,6 +4,10 @@ app.py
 기술적 분석 종목 스크리너 웹 애플리케이션
 """
 
+
+import socket
+socket.setdefaulttimeout(5.0)
+
 import os
 import time
 import pandas as pd
