@@ -17,6 +17,21 @@ from engine import run_screening_task
 from indicators import calculate_technical_indicators
 from excel_exporter import create_excel_bytes, create_csv_bytes, prepare_export_dataframe
 
+STANDARD_CHART_THEME = {
+    'paper_bgcolor': '#1E293B',    # Tailwind Slate-800 (외곽 카드 배경)
+    'plot_bgcolor': '#0F172A',     # Tailwind Slate-900 (내부 딥 블랙 플롯)
+    'text_main': '#F8FAFC',        # 타이틀/헤더 텍스트 (순백색)
+    'text_body': '#E2E8F0',        # 본문 및 축 라벨 (부드러운 화이트)
+    'text_muted': '#CBD5E1',       # 축 눈금 수치 텍스트 (Slate-300)
+    'grid_color': '#334155',       # 그리드 격자선 (Slate-700)
+    'border_color': '#475569',     # 축 기준선 (Slate-600)
+    'legend_bg': 'rgba(30, 41, 59, 0.85)',
+    'legend_border': '#334155',
+    'hover_bg': 'rgba(15, 23, 42, 0.9)',
+    'hover_border': '#334155'
+}
+
+
 # ---------------- 1. 페이지 환경 설정 ----------------
 st.set_page_config(
     page_title="다중 지표 앙상블 스크리너",
@@ -32,6 +47,11 @@ st.markdown("""
         background-color: #0f172a;
         color: #f8fafc;
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Streamlit 고정 상단 헤더 배경 투명화 */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
     }
 
     /* 메인 컨테이너 패딩 조절 */
@@ -329,7 +349,7 @@ with st.sidebar:
     market_code = "KOSPI" if "코스피" in market_choice else "KOSDAQ"
 
     st.markdown("<hr style='border: 0; height: 1px; background-color: #334155; margin: 16px 0;'>", unsafe_allow_html=True)
-    st.subheader("🎯 앙상블 조건 필터")
+    st.markdown("<div style='font-size: 0.95rem; font-weight: 700; color: #e2e8f0; margin-bottom: 6px;'>🎯 앙상블 조건 필터</div>", unsafe_allow_html=True)
 
     # 2) 대상 범위 선택 (속도 및 정밀도 조절)
     scope_options = {
@@ -749,8 +769,8 @@ elif df_all_results is not None and not df_all_results.empty:
                     template="plotly_dark",
                     height=650,
                     margin=dict(l=10, r=10, t=20, b=10),
-                    paper_bgcolor='#1E293B',
-                    plot_bgcolor='#0F172A',
+                    paper_bgcolor=STANDARD_CHART_THEME['paper_bgcolor'],
+                    plot_bgcolor=STANDARD_CHART_THEME['plot_bgcolor'],
                     font=dict(color='#cbd5e1'),
                     xaxis_rangeslider_visible=False,
                     showlegend=False
