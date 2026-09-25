@@ -571,7 +571,7 @@ elif df_all_results is not None and not df_all_results.empty:
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size: 1.20rem; font-weight: 700; color: #8AB4F8; margin: 20px 0 10px 0; display: flex; align-items: center; gap: 8px;'><span>📋</span> 6대 지표 앙상블 스크리닝 결과</div>", unsafe_allow_html=True)
 
     # 2) 테이블 상단 툴바 (검색창 및 CSV/엑셀 다운로드 버튼: 좌측 CSV, 우측 엑셀)
     col_search, col_dl_csv, col_dl_excel = st.columns([2.5, 1, 1])
@@ -698,6 +698,7 @@ elif df_all_results is not None and not df_all_results.empty:
     st.caption("💡 각 열 헤더를 클릭하여 오름차순/내림차순 정렬을 토글할 수 있습니다. 기본 정렬은 '종합 점수' 내림차순입니다.")
 
     st.markdown("---")
+    st.markdown("<div style='font-size: 1.20rem; font-weight: 700; color: #8AB4F8; margin: 20px 0 10px 0; display: flex; align-items: center; gap: 8px;'><span>📈</span> 발굴 종목 퀵 차트 뷰어 (상세 진단)</div>", unsafe_allow_html=True)
 
     # 4) 전문가 제안 시너지 기능: 발굴 종목 "원클릭 퀵 차트 뷰어 (Deep Dive)"
     with st.expander("🔍 발굴 종목 퀵 차트 뷰어 (캔들스틱 + 6대 지표 정밀 확인)", expanded=True):
@@ -821,7 +822,7 @@ elif df_all_results is not None and not df_all_results.empty:
 <span style="font-weight: 700; color: #f8fafc;">종합 점수</span>
 <span style="font-size: 1.3rem; font-weight: 800; color: #10b981;">{sel_row['종합 점수']:+d}점</span>
 </div>
-<div style="font-size: 0.85rem; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">6대 지표 진단 현황</div>
+<div style="font-size: 1.00rem; font-weight: 600; color: #E2E8F0; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;"><span>📊</span> 6대 지표 진단 현황</div>
 <ul style="padding-left: 16px; font-size: 0.82rem; color: #94a3b8; line-height: 1.6; margin-bottom: 12px;">
 <li><b>이평선</b>: {sel_row['이동평균선 배열']}</li>
 <li><b>MACD</b>: {sel_row['MACD']}</li>
