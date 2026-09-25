@@ -7,7 +7,8 @@ engine.py
 
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
+KST = timezone(timedelta(hours=9))
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
 import numpy as np
