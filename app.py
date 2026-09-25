@@ -42,9 +42,15 @@ st.markdown("""
     }
 
     /* 사이드바 스타일링 */
-    section[data-testid="stSidebar"] {
+    section[data-testid="stSidebar"], [data-testid="stSidebar"] {
         background-color: #1e293b !important;
-        border-right: 1px solid #334155;
+        border-right: 1px solid #334155 !important;
+    }
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3 {
+        color: #f8fafc !important;
+        -webkit-text-fill-color: #f8fafc !important;
     }
 
     /* 사이드바 너비 편의 설정 */
@@ -297,10 +303,20 @@ if "has_run_screening" not in st.session_state:
 
 # ---------------- 4. 왼쪽 사이드바 (필터 및 스크리닝 실행) ----------------
 with st.sidebar:
-    st.markdown("<h2 style='color: #8AB4F8; font-size: 1.4rem; margin-bottom: 12px;'>⚙️ 스크리닝 설정</h2>", unsafe_allow_html=True)
-    st.caption("시장 및 스크리닝 조건을 설정하고 발굴을 시작하세요.")
-    
-    st.markdown("---")
+    st.markdown(
+        """
+        <div style='padding: 2px 0 12px 0;'>
+            <div style='font-size: 1.25rem; font-weight: 700; color: #f8fafc; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px;'>
+                <span>⚙️</span> 스크리닝 설정
+            </div>
+            <div style='font-size: 0.82rem; color: #94a3b8; margin-top: 4px; line-height: 1.4;'>
+                시장 및 앙상블 조건을 설정하고 유망 종목 발굴을 시작하세요.
+            </div>
+        </div>
+        <hr style='border: 0; height: 1px; background-color: #334155; margin: 10px 0 16px 0;'>
+        """,
+        unsafe_allow_html=True
+    )
 
     # 1) 시장 선택 (KOSPI vs KOSDAQ)
     market_choice = st.radio(
@@ -312,7 +328,7 @@ with st.sidebar:
     )
     market_code = "KOSPI" if "코스피" in market_choice else "KOSDAQ"
 
-    st.markdown("---")
+    st.markdown("<hr style='border: 0; height: 1px; background-color: #334155; margin: 16px 0;'>", unsafe_allow_html=True)
     st.subheader("🎯 앙상블 조건 필터")
 
     # 2) 대상 범위 선택 (속도 및 정밀도 조절)
