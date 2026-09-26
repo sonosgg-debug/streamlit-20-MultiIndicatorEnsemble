@@ -364,7 +364,7 @@ with st.sidebar:
         "시장 전체 종목 (전체 모드)": "all"
     }
     scope_selected_label = st.selectbox(
-        "🎯 스크리닝 대상 범위",
+        "🎯 대상 범위 (Scope)",
         options=list(scope_options.keys()),
         index=1,
         help="시가총액 상위 종목 위주로 분석하여 스크리닝 속도를 최적화합니다."
