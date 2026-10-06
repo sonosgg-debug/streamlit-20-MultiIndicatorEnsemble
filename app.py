@@ -4,10 +4,6 @@ app.py
 기술적 분석 종목 스크리너 웹 애플리케이션
 """
 
-
-import socket
-socket.setdefaulttimeout(5.0)
-
 import os
 import time
 import pandas as pd
@@ -34,7 +30,6 @@ STANDARD_CHART_THEME = {
     'hover_bg': 'rgba(15, 23, 42, 0.9)',
     'hover_border': '#334155'
 }
-
 
 # ---------------- 1. 페이지 환경 설정 ----------------
 st.set_page_config(
@@ -309,7 +304,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
 # ---------------- 3. 세션 상태 초기화 및 스키마 검증 ----------------
 SCHEMA_VERSION = 2
 if st.session_state.get("schema_version") != SCHEMA_VERSION:
@@ -324,7 +318,6 @@ if "last_screened_scope" not in st.session_state:
     st.session_state.last_screened_scope = None
 if "has_run_screening" not in st.session_state:
     st.session_state.has_run_screening = False
-
 
 # ---------------- 4. 왼쪽 사이드바 (필터 및 스크리닝 실행) ----------------
 with st.sidebar:
@@ -413,7 +406,6 @@ with st.sidebar:
         "일반적으로 15~30초 내에 전 종목 앙상블 스크리닝이 완료됩니다."
     )
 
-
 # ---------------- 5. 오른쪽 대시보드 - 타이틀 영역 ----------------
 # 00 Bookmarks 스타일의 철학적 인용구 및 메인 타이틀
 st.markdown(
@@ -450,7 +442,6 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
-
 
 # ---------------- 6. 스크리닝 실행 로직 ----------------
 if run_btn:
@@ -489,7 +480,6 @@ if run_btn:
             st.session_state.has_run_screening = True
     except Exception as e:
         st.error(f"스크리닝 도중 오류가 발생했습니다: {e}")
-
 
 # ---------------- 7. 결과 대시보드 렌더링 ----------------
 df_all_results = st.session_state.screening_results
@@ -853,7 +843,6 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
-
 
 # ---------------- 8. 페이지 푸터 ----------------
 st.markdown("---")
