@@ -12,8 +12,8 @@ from openpyxl.utils import get_column_letter
 
 
 EXPORT_HEADERS = [
-    "종목명",
     "종목코드",
+    "종목명",
     "시장",
     "시가총액(억원)",
     "현재가",
@@ -37,8 +37,8 @@ def prepare_export_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame(columns=EXPORT_HEADERS)
 
     df_out = pd.DataFrame()
-    df_out["종목명"] = df.get("종목명", "")
     df_out["종목코드"] = df["종목코드"].astype(str).str.zfill(6) if "종목코드" in df else ""
+    df_out["종목명"] = df.get("종목명", "")
     df_out["시장"] = df.get("시장", "")
 
     # 시가총액(억원)
@@ -130,7 +130,10 @@ def create_excel_bytes(df: pd.DataFrame) -> bytes:
             if col_name in ["시가총액(억원)", "현재가", "거래량"]:
                 cell.alignment = align_right
                 cell.number_format = "#,##0"
-            elif col_name in ["종목코드", "시장"]:
+            elif col_name in ["종목코드"]:
+                cell.alignment = align_center
+                cell.number_format = "@"
+            elif col_name in ["시장"]:
                 cell.alignment = align_center
             elif col_name in ["종목명"]:
                 cell.font = bold_data_font
