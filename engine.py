@@ -6,7 +6,9 @@ engine.py
 """
 
 import os
+import io
 import time
+import requests
 from datetime import datetime, timezone, timedelta
 KST = timezone(timedelta(hours=9))
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -94,7 +96,10 @@ def get_fallback_marcap_map() -> dict:
         target_date = (today - timedelta(days=days_back)).strftime("%Y-%m-%d")
         url = f"{base_url}{target_date}.csv"
         try:
-            df = pd.read_csv(url, dtype={"Code": str, "ISU_SRT_CD": str}, low_memory=False)
+            resp = requests.get(url, timeout=3.0)
+            if resp.status_code != 200:
+                continue
+            df = pd.read_csv(io.StringIO(resp.text), dtype={"Code": str, "ISU_SRT_CD": str}, low_memory=False)
             code_col = "Code" if "Code" in df.columns else "ISU_SRT_CD"
             marcap_col = None
             for col in ["Marcap", "MKTCAP", "시가총액"]:
@@ -116,7 +121,7 @@ def get_fallback_marcap_map() -> dict:
     return {}
 
 
-def get_market_universe(market: str = "KOSPI", scope: str = "top500", min_marcap_eok: int = 0) -> pd.DataFrame:
+def get_market_universe(market: str = "KOSPI", scope: str = "top500", min_marcap_eok: int = 0, **kwargs) -> pd.DataFrame:
     """
     지정된 시장(KOSPI 또는 KOSDAQ)의 종목 목록을 로드하고 필터링 및 범위 지정을 수행합니다.
     시가총액 결측치 발생 시 최근 유효 거래일 데이터를 자동 보정합니다.
@@ -272,7 +277,8 @@ def run_screening_task(
     min_score: int = 45,
     min_marcap_eok: int = 0,
     max_workers: int = 20,
-    progress_callback = None
+    progress_callback = None,
+    **kwargs
 ) -> pd.DataFrame:
     """
     멀티스레딩을 활용하여 선택된 시장의 종목들을 동시 스크리닝하고,

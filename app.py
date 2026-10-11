@@ -4,18 +4,60 @@ app.py
 기술적 분석 종목 스크리너 웹 애플리케이션
 """
 
+import sys
+# Python 3.12+ 및 Streamlit Cloud 환경에서 pkg_resources 의존성 결함 방어용 Mock Shim
+try:
+    import pkg_resources
+except Exception:
+    try:
+        import setuptools.command
+        import pkg_resources
+    except Exception:
+        import types
+        pkg_mock = types.ModuleType("pkg_resources")
+        pkg_mock.resource_filename = lambda *args, **kwargs: ""
+        pkg_mock.resource_string = lambda *args, **kwargs: b""
+        pkg_mock.Requirement = type("Requirement", (), {"parse": lambda s: s})
+        pkg_mock.get_distribution = lambda *args, **kwargs: type("Dist", (), {"version": "1.0.0"})()
+        sys.modules["pkg_resources"] = pkg_mock
+
+import streamlit as st
+
+# [가이드 05] Streamlit 명령 최우선 실행 보장 (StreamlitAPIException 및 무한 로딩 방어)
+st.set_page_config(
+    page_title="다중 지표 앙상블 스크리너",
+    page_icon="🏛️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 import os
 import time
+import importlib
 import pandas as pd
 import numpy as np
-import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import FinanceDataReader as fdr
 
-from engine import run_screening_task
-from indicators import calculate_technical_indicators
-from excel_exporter import create_excel_bytes, create_csv_bytes, prepare_export_dataframe
+# [가이드 05] 보조 모듈 최신 갱신 보장 및 에러 격리
+try:
+    import engine
+    importlib.reload(engine)
+    from engine import run_screening_task
+
+    import indicators
+    importlib.reload(indicators)
+    from indicators import calculate_technical_indicators
+
+    import excel_exporter
+    importlib.reload(excel_exporter)
+    from excel_exporter import create_excel_bytes, create_csv_bytes, prepare_export_dataframe
+except Exception as e:
+    import traceback
+    st.error(f"모듈 로드 중 오류가 발생했습니다: {e}")
+    st.code(traceback.format_exc())
+    st.stop()
 
 STANDARD_CHART_THEME = {
     'paper_bgcolor': '#1E293B',    # Tailwind Slate-800 (외곽 카드 배경)
@@ -30,14 +72,6 @@ STANDARD_CHART_THEME = {
     'hover_bg': 'rgba(15, 23, 42, 0.9)',
     'hover_border': '#334155'
 }
-
-# ---------------- 1. 페이지 환경 설정 ----------------
-st.set_page_config(
-    page_title="다중 지표 앙상블 스크리너",
-    page_icon="🏛️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # ---------------- 2. 커스텀 CSS (00 Bookmarks 테마 일체화) ----------------
 st.markdown("""
