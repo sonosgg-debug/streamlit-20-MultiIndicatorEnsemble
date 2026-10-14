@@ -385,15 +385,15 @@ with st.sidebar:
 
     # 2) 대상 범위 선택 (속도 및 정밀도 조절)
     scope_options = {
-        "시총 상위 300 (쾌속 모드 ~15초)": "top300",
-        "시총 상위 500 (권장 모드 ~25초)": "top500",
-        "시총 상위 1,000 (심층 모드 ~50초)": "top1000",
+        "시총 상위 300 (쾌속 모드)": "top300",
+        "시총 상위 500 (확장 모드)": "top500",
+        "시총 상위 1,000 (심층 모드)": "top1000",
         "시장 전체 종목 (전체 모드)": "all"
     }
     scope_selected_label = st.selectbox(
         "🎯 대상 범위 (Scope)",
         options=list(scope_options.keys()),
-        index=1,
+        index=0,
         help="시가총액 상위 종목 위주로 분석하여 스크리닝 속도를 최적화합니다."
     )
     scope_code = scope_options[scope_selected_label]
