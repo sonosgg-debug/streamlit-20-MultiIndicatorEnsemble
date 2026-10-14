@@ -370,15 +370,20 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    # 1) 시장 선택 (KOSPI vs KOSDAQ)
+    # 1) 시장 선택 (KOSPI vs KOSDAQ vs ALL)
     market_choice = st.radio(
         "🏛️ 시장 선택",
-        options=["코스피 (KOSPI)", "코스닥 (KOSDAQ)"],
+        options=["코스피 (KOSPI)", "코스닥 (KOSDAQ)", "전체 (ALL)"],
         index=0,
         horizontal=True,
         help="스크리닝할 국내 주식 시장을 선택합니다."
     )
-    market_code = "KOSPI" if "코스피" in market_choice else "KOSDAQ"
+    if "전체" in market_choice or "ALL" in market_choice:
+        market_code = "ALL"
+    elif "코스피" in market_choice:
+        market_code = "KOSPI"
+    else:
+        market_code = "KOSDAQ"
 
     st.markdown("<hr style='border: 0; height: 1px; background-color: #334155; margin: 16px 0;'>", unsafe_allow_html=True)
     st.markdown("<div style='font-size: 0.95rem; font-weight: 700; color: #e2e8f0; margin-bottom: 6px;'>🎯 앙상블 조건 필터</div>", unsafe_allow_html=True)

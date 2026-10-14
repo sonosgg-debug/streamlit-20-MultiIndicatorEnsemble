@@ -123,24 +123,41 @@ def get_fallback_marcap_map() -> dict:
 
 def get_market_universe(market: str = "KOSPI", scope: str = "top500", min_marcap_eok: int = 0, **kwargs) -> pd.DataFrame:
     """
-    지정된 시장(KOSPI 또는 KOSDAQ)의 종목 목록을 로드하고 필터링 및 범위 지정을 수행합니다.
+    지정된 시장(KOSPI, KOSDAQ, 또는 ALL)의 종목 목록을 로드하고 필터링 및 범위 지정을 수행합니다.
     시가총액 결측치 발생 시 최근 유효 거래일 데이터를 자동 보정합니다.
     """
-    market_code = "KOSPI" if "KOSPI" in market.upper() or "코스피" in market else "KOSDAQ"
+    market_upper = market.upper() if market else ""
+    is_all = "ALL" in market_upper or "전체" in market
+    if is_all:
+        market_code = "ALL"
+    else:
+        market_code = "KOSPI" if "KOSPI" in market_upper or "코스피" in market else "KOSDAQ"
     
-    try:
-        df_listing = fdr.StockListing(market_code)
-    except Exception as e:
-        print(f"StockListing({market_code}) 로드 실패: {e}")
-        # 폴백: KRX 전체에서 시장 추출
-        df_all = fdr.StockListing("KRX")
-        if "Market" in df_all.columns:
-            df_listing = df_all[df_all["Market"].str.upper() == market_code].copy()
-        elif "MarketId" in df_all.columns:
-            target_id = "STK" if market_code == "KOSPI" else "KSQ"
-            df_listing = df_all[df_all["MarketId"] == target_id].copy()
-        else:
-            df_listing = df_all.copy()
+    if market_code == "ALL":
+        try:
+            df_listing = fdr.StockListing("KRX")
+        except Exception as e:
+            print(f"StockListing(KRX) 로드 실패: {e}")
+            try:
+                df_k = fdr.StockListing("KOSPI")
+                df_q = fdr.StockListing("KOSDAQ")
+                df_listing = pd.concat([df_k, df_q], ignore_index=True)
+            except Exception as e2:
+                df_listing = pd.DataFrame()
+    else:
+        try:
+            df_listing = fdr.StockListing(market_code)
+        except Exception as e:
+            print(f"StockListing({market_code}) 로드 실패: {e}")
+            # 폴백: KRX 전체에서 시장 추출
+            df_all = fdr.StockListing("KRX")
+            if "Market" in df_all.columns:
+                df_listing = df_all[df_all["Market"].str.upper() == market_code].copy()
+            elif "MarketId" in df_all.columns:
+                target_id = "STK" if market_code == "KOSPI" else "KSQ"
+                df_listing = df_all[df_all["MarketId"] == target_id].copy()
+            else:
+                df_listing = df_all.copy()
 
     # 필수 컬럼 검증 및 통일
     if "Code" not in df_listing.columns and "Symbol" in df_listing.columns:
@@ -150,14 +167,26 @@ def get_market_universe(market: str = "KOSPI", scope: str = "top500", min_marcap
 
     df_listing["Code"] = df_listing["Code"].astype(str).str.zfill(6)
 
-    # 마켓 필터 재확인 (fdr 버전에 따라 전체가 들어올 수 있으므로)
-    if "MarketId" in df_listing.columns:
-        target_id = "STK" if market_code == "KOSPI" else "KSQ"
-        if (df_listing["MarketId"] == target_id).any():
-            df_listing = df_listing[df_listing["MarketId"] == target_id].copy()
-    elif "Market" in df_listing.columns:
-        if (df_listing["Market"].str.upper() == market_code).any():
-            df_listing = df_listing[df_listing["Market"].str.upper() == market_code].copy()
+    # 마켓 필터 재확인
+    if market_code != "ALL":
+        if "MarketId" in df_listing.columns:
+            target_id = "STK" if market_code == "KOSPI" else "KSQ"
+            if (df_listing["MarketId"] == target_id).any():
+                df_listing = df_listing[df_listing["MarketId"] == target_id].copy()
+        elif "Market" in df_listing.columns:
+            if (df_listing["Market"].str.upper() == market_code).any():
+                df_listing = df_listing[df_listing["Market"].str.upper() == market_code].copy()
+    else:
+        # ALL 모드: KONEX 등 기타 시장 제외하고 KOSPI와 KOSDAQ만 포함
+        if "Market" in df_listing.columns:
+            m_upper = df_listing["Market"].str.upper()
+            mask = m_upper.str.contains("KOSPI") | m_upper.str.contains("KOSDAQ")
+            if mask.any():
+                df_listing = df_listing[mask].copy()
+        elif "MarketId" in df_listing.columns:
+            mask = df_listing["MarketId"].isin(["STK", "KSQ"])
+            if mask.any():
+                df_listing = df_listing[mask].copy()
 
     # 노이즈 종목 필터링
     valid_mask = df_listing.apply(lambda row: is_valid_screening_stock(row["Code"], row["Name"]), axis=1)
@@ -296,21 +325,35 @@ def run_screening_task(
     results = []
     completed_count = 0
 
-    market_label = "KOSPI" if "KOSPI" in market.upper() or "코스피" in market else "KOSDAQ"
+    market_upper = market.upper() if market else ""
+    is_all = "ALL" in market_upper or "전체" in market
+    if is_all:
+        default_market_label = "KOSPI"
+    else:
+        default_market_label = "KOSPI" if "KOSPI" in market_upper or "코스피" in market else "KOSDAQ"
 
     # 멀티스레드 병렬 실행
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_stock = {
-            executor.submit(
+        future_to_stock = {}
+        for _, row in df_universe.iterrows():
+            row_mkt = str(row.get("Market", "")).upper()
+            row_mkt_id = str(row.get("MarketId", "")).upper()
+            if "KOSPI" in row_mkt or row_mkt_id == "STK":
+                stock_market = "KOSPI"
+            elif "KOSDAQ" in row_mkt or row_mkt_id == "KSQ":
+                stock_market = "KOSDAQ"
+            else:
+                stock_market = default_market_label
+
+            future = executor.submit(
                 _process_single_stock,
                 row["Code"],
                 row["Name"],
-                market_label,
+                stock_market,
                 row["Marcap_Num"],
                 start_date
-            ): (row["Code"], row["Name"])
-            for _, row in df_universe.iterrows()
-        }
+            )
+            future_to_stock[future] = (row["Code"], row["Name"])
 
         for future in as_completed(future_to_stock):
             code, name = future_to_stock[future]
